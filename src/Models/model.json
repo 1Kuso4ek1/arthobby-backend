@@ -1,0 +1,12 @@
+{
+    "rdbms": "postgresql",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "dbname": "arthobby",
+    "user": "arthobby_admin",
+    "passwd": "test",
+    "tables": [ "product" ],
+    "relationships": {
+        "enabled": false
+    }
+}
