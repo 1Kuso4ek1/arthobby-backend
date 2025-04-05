@@ -38,6 +38,7 @@ namespace drogon_model
 {
 namespace arthobby
 {
+class Cart;
 
 class Product
 {
@@ -208,6 +209,10 @@ class Product
     Json::Value toJson() const;
     Json::Value toMasqueradedJson(const std::vector<std::string> &pMasqueradingVector) const;
     /// Relationship interfaces
+    std::vector<Cart> getCart(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getCart(const drogon::orm::DbClientPtr &clientPtr,
+                 const std::function<void(std::vector<Cart>)> &rcb,
+                 const drogon::orm::ExceptionCallback &ecb) const;
   private:
     friend drogon::orm::Mapper<Product>;
     friend drogon::orm::BaseBuilder<Product, true, true>;

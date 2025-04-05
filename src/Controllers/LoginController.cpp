@@ -1,4 +1,6 @@
 #include <Controllers/LoginController.hpp>
+#include <Database/DatabaseManager.hpp>
+#include <Models/User.hpp>
 
 using namespace std::chrono_literals;
 
@@ -8,10 +10,11 @@ void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
 
     if(validateUser(request))
     {
-        auto claim = (*request)["username"].asString();
+        auto userId = (*request)["user_id"].asInt();
+        auto username = (*request)["username"].asString();
         
-        auto accessToken = makeAccessToken(claim);
-        auto refreshToken = makeRefreshToken(claim);
+        auto accessToken = makeAccessToken(userId, username);
+        auto refreshToken = makeRefreshToken(userId, username);
 
         Json::Value json;
         json["token"] = accessToken;
@@ -53,7 +56,11 @@ void LoginController::refresh(const HttpRequestPtr& req, Callback&& callback)
 
         verifier.verify(decoded);
 
-        auto accessToken = makeAccessToken(decoded.get_payload_claim("username").as_string());
+        auto accessToken =
+            makeAccessToken(
+                decoded.get_payload_claim("user_id").as_integer(),
+                decoded.get_payload_claim("username").as_string()
+            );
 
         Json::Value json;
         json["token"] = accessToken;
@@ -81,6 +88,18 @@ void LoginController::logout(const HttpRequestPtr& req, Callback&& callback)
     callback(response);
 }
 
+void LoginController::saveAccessToCookie(const std::string& token, const HttpResponsePtr& resp, int maxAge)
+{
+    /* Cookie cookie("accessToken", token);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(true);
+    cookie.setSameSite(Cookie::SameSite::kStrict);
+    cookie.setPath("/access");
+    cookie.setMaxAge(maxAge);
+
+    resp->addCookie(cookie); */
+}
+
 void LoginController::saveRefreshToCookie(const std::string& token, const HttpResponsePtr& resp, int maxAge)
 {
     Cookie cookie("refreshToken", token);
@@ -95,37 +114,66 @@ void LoginController::saveRefreshToCookie(const std::string& token, const HttpRe
 
 bool LoginController::validateUser(const std::shared_ptr<Json::Value>& json)
 {
-    if(!json)
+    static auto& mapper = DatabaseManager::get().getMapper<drogon_model::arthobby::User>();
+
+    if(!json || !json->isMember("username") || !json->isMember("password"))
         return false;
 
-    // Just a placeholder
-    return ((*json)["username"] == "amogus" && (*json)["password"] == "test");
+    try
+    {
+        auto user = mapper.findOne(
+            orm::Criteria(
+                "username",
+                orm::CompareOperator::EQ,
+                (*json)["username"].asString()
+            )
+        );
+
+        (*json)["user_id"] = *user.getId();
+
+        if(user.getPassword())
+            return *user.getPassword().get() == (*json)["password"].asString();
+    }
+    catch(...)
+    {
+        return false;
+    }
+
+    return false;
 }
 
-std::string LoginController::makeAccessToken(const std::string& claim)
+std::string LoginController::makeAccessToken(int id, const std::string& username)
 {
     auto token = jwt::create()
         .set_issuer("auth0")
         .set_type("JWS")
-        .set_expires_in(900s) // 15 min
+        .set_expires_in(2592000s) // 1 month
+        .set_payload_claim(
+            "user_id",
+            jwt::claim(std::to_string(id))
+        )
         .set_payload_claim(
             "username",
-            jwt::claim(claim)
+            jwt::claim(username)
         )
-        .sign(jwt::algorithm::hs256("secret"));
+        .sign(jwt::algorithm::hs256("secret")); // Change the secret to something *really* secret
 
     return token;
 }
 
-std::string LoginController::makeRefreshToken(const std::string& claim)
+std::string LoginController::makeRefreshToken(int id, const std::string& username)
 {
     auto token = jwt::create()
         .set_issuer("auth0")
         .set_type("JWS")
         .set_expires_in(604800s) // 7 days
         .set_payload_claim(
+            "user_id",
+            jwt::claim(std::to_string(id))
+        )
+        .set_payload_claim(
             "username",
-            jwt::claim(claim)
+            jwt::claim(username)
         )
         .sign(jwt::algorithm::hs256("refreshSecret"));
 

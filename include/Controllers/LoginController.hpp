@@ -25,11 +25,12 @@ public:
     METHOD_LIST_END
 
 private:
+    void saveAccessToCookie(const std::string& token, const HttpResponsePtr& resp, int maxAge = 2592000); // 1 month
     void saveRefreshToCookie(const std::string& token, const HttpResponsePtr& resp, int maxAge = 604800); // 7 days
 
     bool validateUser(const std::shared_ptr<Json::Value>& json);
 
-    std::string makeAccessToken(const std::string& claim);
-    std::string makeRefreshToken(const std::string& claim);
+    std::string makeAccessToken(int id, const std::string& username);
+    std::string makeRefreshToken(int id, const std::string& username);
 };
 

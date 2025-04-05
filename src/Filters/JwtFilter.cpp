@@ -27,9 +27,12 @@ void JwtFilter::doFilter(
 
         verifier.verify(decoded);
 
+        req->setParameter("user_id", decoded.get_payload_claim("user_id").as_string());
+        req->setParameter("username", decoded.get_payload_claim("username").as_string());
+
         fccb();
     }
-    catch(...)
+    catch(const std::exception& e)
     {
         auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(k401Unauthorized);
