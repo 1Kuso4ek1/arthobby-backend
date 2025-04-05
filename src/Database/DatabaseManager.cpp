@@ -18,7 +18,7 @@ DatabaseManager::DatabaseManager()
         "connect_timeout=10 "
         "password=" + password + " "
         "user=" + user,
-        1
+        5
     );
 }
 

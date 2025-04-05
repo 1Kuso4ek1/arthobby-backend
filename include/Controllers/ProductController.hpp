@@ -14,7 +14,7 @@ public:
     METHOD_LIST_BEGIN
 
         ADD_METHOD_TO(ProductController::getProduct, "/product/{id}", Get);
-        ADD_METHOD_TO(ProductController::getProducts, "/products", Get);
+        ADD_METHOD_TO(ProductController::getProducts, "/products/", Get);
 
     METHOD_LIST_END
 
