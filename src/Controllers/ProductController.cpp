@@ -19,19 +19,39 @@ void ProductController::getProduct(const HttpRequestPtr& req, Callback&& callbac
     }
     catch(...) // mapper.findByPrimaryKey throws an exception when nothing was found
     {
-        auto response = HttpResponse::newHttpResponse();
-        response->setStatusCode(k404NotFound);
+        // An empty json
+        auto response = HttpResponse::newHttpJsonResponse({});
 
         callback(response);
     }
 }
 
-void ProductController::getProducts(const HttpRequestPtr& req, Callback&& callback)
+void ProductController::getAllProducts(const HttpRequestPtr& req, Callback&& callback)
 {
     static auto dbClient = DatabaseManager::get().getDbClient();
     static auto& mapper = DatabaseManager::get().getMapper<models::Product>();
 
     auto queryResult = mapper.findAll();
+
+    Json::Value json;
+    for(auto& i : queryResult)
+        json.append(i.toJson());
+
+    auto response = HttpResponse::newHttpJsonResponse(json);
+
+    callback(response);
+}
+
+void ProductController::getPopularProducts(const HttpRequestPtr& req, Callback&& callback)
+{
+    static auto dbClient = DatabaseManager::get().getDbClient();
+    static auto& mapper = DatabaseManager::get().getMapper<models::Product>();
+
+    auto queryResult =
+        mapper
+            .orderBy("popularity", orm::SortOrder::DESC)
+            .limit(10)
+            .findAll();
 
     Json::Value json;
     for(auto& i : queryResult)

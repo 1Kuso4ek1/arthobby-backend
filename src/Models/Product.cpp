@@ -22,6 +22,7 @@ const std::string Product::Cols::_type = "\"type\"";
 const std::string Product::Cols::_material = "\"material\"";
 const std::string Product::Cols::_size = "\"size\"";
 const std::string Product::Cols::_article = "\"article\"";
+const std::string Product::Cols::_popularity = "\"popularity\"";
 const std::string Product::primaryKeyName = "id";
 const bool Product::hasPrimaryKey = true;
 const std::string Product::tableName = "\"product\"";
@@ -35,7 +36,8 @@ const std::vector<typename Product::MetaData> Product::metaData_={
 {"type","std::string","character varying",255,0,0,0},
 {"material","std::string","character varying",255,0,0,0},
 {"size","std::string","character varying",255,0,0,0},
-{"article","std::string","character varying",255,0,0,0}
+{"article","std::string","character varying",255,0,0,0},
+{"popularity","int32_t","integer",4,0,0,0}
 };
 const std::string &Product::getColumnName(size_t index) noexcept(false)
 {
@@ -100,11 +102,15 @@ Product::Product(const Row &r, const ssize_t indexOffset) noexcept
         {
             article_=std::make_shared<std::string>(r["article"].as<std::string>());
         }
+        if(!r["popularity"].isNull())
+        {
+            popularity_=std::make_shared<int32_t>(r["popularity"].as<int32_t>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 9 > r.size())
+        if(offset + 10 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -173,13 +179,18 @@ Product::Product(const Row &r, const ssize_t indexOffset) noexcept
         {
             article_=std::make_shared<std::string>(r[index].as<std::string>());
         }
+        index = offset + 9;
+        if(!r[index].isNull())
+        {
+            popularity_=std::make_shared<int32_t>(r[index].as<int32_t>());
+        }
     }
 
 }
 
 Product::Product(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 9)
+    if(pMasqueradingVector.size() != 10)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -272,6 +283,14 @@ Product::Product(const Json::Value &pJson, const std::vector<std::string> &pMasq
         if(!pJson[pMasqueradingVector[8]].isNull())
         {
             article_=std::make_shared<std::string>(pJson[pMasqueradingVector[8]].asString());
+        }
+    }
+    if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson[pMasqueradingVector[9]].isNull())
+        {
+            popularity_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[9]].asInt64());
         }
     }
 }
@@ -368,12 +387,20 @@ Product::Product(const Json::Value &pJson) noexcept(false)
             article_=std::make_shared<std::string>(pJson["article"].asString());
         }
     }
+    if(pJson.isMember("popularity"))
+    {
+        dirtyFlag_[9]=true;
+        if(!pJson["popularity"].isNull())
+        {
+            popularity_=std::make_shared<int32_t>((int32_t)pJson["popularity"].asInt64());
+        }
+    }
 }
 
 void Product::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 9)
+    if(pMasqueradingVector.size() != 10)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -467,6 +494,14 @@ void Product::updateByMasqueradedJson(const Json::Value &pJson,
             article_=std::make_shared<std::string>(pJson[pMasqueradingVector[8]].asString());
         }
     }
+    if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson[pMasqueradingVector[9]].isNull())
+        {
+            popularity_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[9]].asInt64());
+        }
+    }
 }
 
 void Product::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -558,6 +593,14 @@ void Product::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["article"].isNull())
         {
             article_=std::make_shared<std::string>(pJson["article"].asString());
+        }
+    }
+    if(pJson.isMember("popularity"))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson["popularity"].isNull())
+        {
+            popularity_=std::make_shared<int32_t>((int32_t)pJson["popularity"].asInt64());
         }
     }
 }
@@ -795,6 +838,28 @@ void Product::setArticleToNull() noexcept
     dirtyFlag_[8] = true;
 }
 
+const int32_t &Product::getValueOfPopularity() const noexcept
+{
+    static const int32_t defaultValue = int32_t();
+    if(popularity_)
+        return *popularity_;
+    return defaultValue;
+}
+const std::shared_ptr<int32_t> &Product::getPopularity() const noexcept
+{
+    return popularity_;
+}
+void Product::setPopularity(const int32_t &pPopularity) noexcept
+{
+    popularity_ = std::make_shared<int32_t>(pPopularity);
+    dirtyFlag_[9] = true;
+}
+void Product::setPopularityToNull() noexcept
+{
+    popularity_.reset();
+    dirtyFlag_[9] = true;
+}
+
 void Product::updateId(const uint64_t id)
 {
 }
@@ -809,7 +874,8 @@ const std::vector<std::string> &Product::insertColumns() noexcept
         "type",
         "material",
         "size",
-        "article"
+        "article",
+        "popularity"
     };
     return inCols;
 }
@@ -904,6 +970,17 @@ void Product::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[9])
+    {
+        if(getPopularity())
+        {
+            binder << getValueOfPopularity();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Product::updateColumns() const
@@ -940,6 +1017,10 @@ const std::vector<std::string> Product::updateColumns() const
     if(dirtyFlag_[8])
     {
         ret.push_back(getColumnName(8));
+    }
+    if(dirtyFlag_[9])
+    {
+        ret.push_back(getColumnName(9));
     }
     return ret;
 }
@@ -1034,6 +1115,17 @@ void Product::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[9])
+    {
+        if(getPopularity())
+        {
+            binder << getValueOfPopularity();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 Json::Value Product::toJson() const
 {
@@ -1110,6 +1202,14 @@ Json::Value Product::toJson() const
     {
         ret["article"]=Json::Value();
     }
+    if(getPopularity())
+    {
+        ret["popularity"]=getValueOfPopularity();
+    }
+    else
+    {
+        ret["popularity"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1117,7 +1217,7 @@ Json::Value Product::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 9)
+    if(pMasqueradingVector.size() == 10)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -1218,6 +1318,17 @@ Json::Value Product::toMasqueradedJson(
                 ret[pMasqueradingVector[8]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[9].empty())
+        {
+            if(getPopularity())
+            {
+                ret[pMasqueradingVector[9]]=getValueOfPopularity();
+            }
+            else
+            {
+                ret[pMasqueradingVector[9]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -1293,6 +1404,14 @@ Json::Value Product::toMasqueradedJson(
     {
         ret["article"]=Json::Value();
     }
+    if(getPopularity())
+    {
+        ret["popularity"]=getValueOfPopularity();
+    }
+    else
+    {
+        ret["popularity"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1343,13 +1462,18 @@ bool Product::validateJsonForCreation(const Json::Value &pJson, std::string &err
         if(!validJsonOfField(8, "article", pJson["article"], err, true))
             return false;
     }
+    if(pJson.isMember("popularity"))
+    {
+        if(!validJsonOfField(9, "popularity", pJson["popularity"], err, true))
+            return false;
+    }
     return true;
 }
 bool Product::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                  const std::vector<std::string> &pMasqueradingVector,
                                                  std::string &err)
 {
-    if(pMasqueradingVector.size() != 9)
+    if(pMasqueradingVector.size() != 10)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1427,6 +1551,14 @@ bool Product::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[9].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[9]))
+          {
+              if(!validJsonOfField(9, pMasqueradingVector[9], pJson[pMasqueradingVector[9]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -1487,13 +1619,18 @@ bool Product::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(8, "article", pJson["article"], err, false))
             return false;
     }
+    if(pJson.isMember("popularity"))
+    {
+        if(!validJsonOfField(9, "popularity", pJson["popularity"], err, false))
+            return false;
+    }
     return true;
 }
 bool Product::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                const std::vector<std::string> &pMasqueradingVector,
                                                std::string &err)
 {
-    if(pMasqueradingVector.size() != 9)
+    if(pMasqueradingVector.size() != 10)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1547,6 +1684,11 @@ bool Product::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
       {
           if(!validJsonOfField(8, pMasqueradingVector[8], pJson[pMasqueradingVector[8]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+      {
+          if(!validJsonOfField(9, pMasqueradingVector[9], pJson[pMasqueradingVector[9]], err, false))
               return false;
       }
     }
@@ -1717,6 +1859,17 @@ bool Product::validJsonOfField(size_t index,
                 return false;
             }
 
+            break;
+        case 9:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
             break;
         default:
             err="Internal error in the server";

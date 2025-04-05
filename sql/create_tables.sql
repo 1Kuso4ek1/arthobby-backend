@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS product(
     type VARCHAR(255),
     material VARCHAR(255),
     size VARCHAR(255),
-    article VARCHAR(255)
+    article VARCHAR(255),
+    popularity INTEGER
 );

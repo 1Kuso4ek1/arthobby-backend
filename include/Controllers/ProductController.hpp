@@ -9,12 +9,15 @@ class ProductController : public HttpController<ProductController>
 {
 public:
     void getProduct(const HttpRequestPtr& req, Callback&& callback, int id);
-    void getProducts(const HttpRequestPtr& req, Callback&& callback);
+    void getAllProducts(const HttpRequestPtr& req, Callback&& callback);
+    void getPopularProducts(const HttpRequestPtr& req, Callback&& callback);
 
+public:
     METHOD_LIST_BEGIN
 
-        ADD_METHOD_TO(ProductController::getProduct, "/product/{id}", Get);
-        ADD_METHOD_TO(ProductController::getProducts, "/products/", Get);
+        ADD_METHOD_TO(ProductController::getProduct, "/getProduct/{id}", Get);
+        ADD_METHOD_TO(ProductController::getAllProducts, "/getAllProducts", Get);
+        ADD_METHOD_TO(ProductController::getPopularProducts, "/getPopularProducts", Get);
 
     METHOD_LIST_END
 

@@ -29,7 +29,7 @@ void JwtFilter::doFilter(
 
         fccb();
     }
-    catch (const std::exception& e)
+    catch(...)
     {
         auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(k401Unauthorized);

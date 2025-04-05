@@ -20,7 +20,9 @@ Before you begin, ensure you have the following installed:
 -   **CMake:** Version 3.10 or higher.
 -   **PostgreSQL:** A running PostgreSQL server.
 -   **Drogon:** The Drogon C++ web framework. Shipped as a submodule.
+-   **jwt-cpp:** The JWT (JSON Web Tokens) library for C++. Shipped as a submodule.
 -   **libpq-dev:** The PostgreSQL client library development headers.
+-   **uuid-dev:** The UUID library development headers.
 
 ## Cloning the Repository
 
