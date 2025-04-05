@@ -6,6 +6,8 @@ DatabaseManager::DatabaseManager()
 {
     std::string db, user, password;
 
+    // ENV_PATH comes from cmake's add_definitions
+    // and refers to 'env' file in the source directory
     std::ifstream env(ENV_PATH);
     env >> db >> user >> password;
 
