@@ -10,7 +10,6 @@ This project is the backend for the [ArtHobby application](https://arthobby-fron
 - [Database Setup](#database-setup)
 - [Environment Configuration](#environment-configuration)
 - [Running the Application](#running-the-application)
-- [Endpoints](#endpoints)
 
 ## Prerequisites
 
@@ -122,21 +121,3 @@ Before you begin, ensure you have the following installed:
     ```
 
     This will start the Drogon web server.
-
-## Endpoints
-
-At the moment application supports following endpoints:
-
--   **Get a product by ID:**
-
-    ```
-    GET http://localhost:8080/product/{id}
-    ```
-
-    Replace `{id}` with the actual product ID.
-
--   **Get all products:**
-
-    ```
-    GET http://localhost:8080/products/
-    ```

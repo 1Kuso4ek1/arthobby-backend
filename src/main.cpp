@@ -15,5 +15,6 @@ int main()
         .setThreadNum(16)
         // .enableRunAsDaemon()
         .enableSession(1min)
+        .setDocumentRoot("../static/swagger")
         .run();
 }

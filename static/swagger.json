@@ -1,0 +1,333 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "description": "AMOGUS",
+      "version": "1.0.7",
+      "title": "ArtHobby store"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+      "/login": {
+        "post": {
+          "summary": "login user",
+          "description": "",
+          "operationId": "login",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "User object",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UserLogin"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/getProduct/{id}": {
+        "get": {
+          "summary": "returns product by id",
+          "description": "",
+          "operationId": "getProduct",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of product to return",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          }
+        }
+      },
+      "/getAllProducts": {
+        "get": {
+          "summary": "returns all products",
+          "description": "",
+          "operationId": "getAllProducts",
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "$ref": "#/definitions/ProductArray"
+              }
+            }
+          }
+        }
+      },
+      "/getPopularProducts": {
+        "get": {
+          "summary": "returns 10 of the most popular products",
+          "description": "",
+          "operationId": "getPopularProducts",
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "$ref": "#/definitions/ProductArray"
+              }
+            }
+          }
+        }
+      },
+      "/getCart": {
+        "get": {
+          "summary": "returns user cart",
+          "description": "",
+          "operationId": "getCart",
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "$ref": "#/definitions/Cart"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "security": [
+            {
+              "api_key": []
+            }
+          ]
+        }
+      },
+      "/addToCart": {
+        "post": {
+          "summary": "add product to cart",
+          "description": "",
+          "operationId": "addToCart",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Product id",
+              "required": true,
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "security": [
+            {
+              "api_key": []
+            }
+          ]
+        }
+      },
+      "/removeFromCart": {
+        "post": {
+          "summary": "remove product from cart",
+          "description": "",
+          "operationId": "removeFromCart",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Product id",
+              "required": true,
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "security": [
+            {
+              "api_key": []
+            }
+          ]
+        }
+      },
+      "clearCart": {
+        "post": {
+          "summary": "clear user cart",
+          "description": "",
+          "operationId": "clearCart",
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "security": [
+            {
+              "api_key": []
+            }
+          ]
+        }
+      }
+    },
+    "securityDefinitions": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "definitions": {
+      "ProductArray": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id" : {
+            "type": "integer"
+          },
+          "name" : {
+            "type": "string"
+          },
+          "price" : {
+            "type": "number"
+          },
+          "filename" : {
+            "type": "string"
+          },
+          "dateOfCreation" : {
+            "type": "string"
+          },
+          "type" : {
+            "type": "string"          
+          },
+          "material" : {
+            "type": "string"
+          },
+          "size" : {
+            "type": "string"
+          },
+          "article" : {
+            "type": "string"
+          },
+          "popularity" : {
+            "type": "integer"
+          }
+        }
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "id" : {
+            "type": "integer"
+          },
+          "userId" : {
+            "type": "integer"
+          },
+          "products" : {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      }
+    }
+}
