@@ -19,7 +19,7 @@ public:
 public:
     METHOD_LIST_BEGIN
 
-        ADD_METHOD_TO(LoginController::login, "/register", Post);
+        ADD_METHOD_TO(LoginController::registerUser, "/register", Post);
         ADD_METHOD_TO(LoginController::login, "/login", Post);
         ADD_METHOD_TO(LoginController::refresh, "/refresh", Post);
         ADD_METHOD_TO(LoginController::logout, "/logout", Post);
