@@ -8,6 +8,32 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
+      "/register": {
+        "post": {
+          "summary": "register user",
+          "description": "",
+          "operationId": "register",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "User login object",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UserLogin"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation"
+            }
+          }
+        }
+      },
       "/login": {
         "post": {
           "summary": "login user",

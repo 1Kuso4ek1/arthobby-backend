@@ -4,6 +4,43 @@
 
 using namespace std::chrono_literals;
 
+namespace models = drogon_model::arthobby;
+
+void LoginController::registerUser(const HttpRequestPtr& req, Callback&& callback)
+{
+    auto request = req->getJsonObject();
+
+    if(!request || !request->isMember("username") || !request->isMember("password"))
+    {
+        auto response = HttpResponse::newHttpResponse();
+        response->setStatusCode(k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    static auto& mapper = DatabaseManager::get().getMapper<models::User>();
+
+    models::User user;
+    user.setUsername((*request)["username"].asString());
+    user.setPassword((*request)["password"].asString());
+
+    try
+    {
+        mapper.insert(user);
+    }
+    catch(...)
+    {
+        auto response = HttpResponse::newHttpResponse();
+        response->setStatusCode(drogon::k409Conflict);
+
+        callback(response);
+        return;
+    }
+
+    callback(HttpResponse::newHttpResponse());
+}
+
 void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
 {
     auto request = req->getJsonObject();
