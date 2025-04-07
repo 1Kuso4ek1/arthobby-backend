@@ -235,7 +235,7 @@
           ]
         }
       },
-      "clearCart": {
+      "/clearCart": {
         "post": {
           "summary": "clear user cart",
           "description": "",

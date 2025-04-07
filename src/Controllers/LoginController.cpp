@@ -29,8 +29,10 @@ void LoginController::registerUser(const HttpRequestPtr& req, Callback&& callbac
     {
         mapper.insert(user);
     }
-    catch(...)
+    catch(const std::exception& e)
     {
+        std::cout << e.what() << std::endl;
+
         auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(drogon::k409Conflict);
 
@@ -38,7 +40,7 @@ void LoginController::registerUser(const HttpRequestPtr& req, Callback&& callbac
         return;
     }
 
-    callback(HttpResponse::newHttpResponse());
+    login(req, std::move(callback));
 }
 
 void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
