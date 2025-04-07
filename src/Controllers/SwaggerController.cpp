@@ -2,7 +2,7 @@
 
 void SwaggerController::swaggerPage(const HttpRequestPtr& req, Callback&& callback)
 {
-    auto resp = HttpResponse::newRedirectionResponse("/index.html");
+    auto resp = HttpResponse::newRedirectionResponse("swagger/index.html");
 
     callback(resp);
 }

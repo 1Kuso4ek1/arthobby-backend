@@ -268,14 +268,9 @@
     },
     "definitions": {
       "ProductArray": {
-        "type": "object",
-        "properties": {
-          "products": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/Product"
-            }
-          }
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Product"
         }
       },
       "Product": {
