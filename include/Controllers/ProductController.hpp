@@ -11,6 +11,7 @@ public:
     void getProduct(const HttpRequestPtr& req, Callback&& callback, int id);
     void getAllProducts(const HttpRequestPtr& req, Callback&& callback);
     void getPopularProducts(const HttpRequestPtr& req, Callback&& callback);
+    void getNewProducts(const HttpRequestPtr& req, Callback&& callback);
 
 public:
     METHOD_LIST_BEGIN
@@ -18,6 +19,7 @@ public:
         ADD_METHOD_TO(ProductController::getProduct, "/getProduct/{id}", Get);
         ADD_METHOD_TO(ProductController::getAllProducts, "/getAllProducts", Get);
         ADD_METHOD_TO(ProductController::getPopularProducts, "/getPopularProducts", Get);
+        ADD_METHOD_TO(ProductController::getNewProducts, "/getNewProducts", Get);
 
     METHOD_LIST_END
 

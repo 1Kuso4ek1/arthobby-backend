@@ -61,3 +61,23 @@ void ProductController::getPopularProducts(const HttpRequestPtr& req, Callback&&
 
     callback(response);
 }
+
+void ProductController::getNewProducts(const HttpRequestPtr& req, Callback&& callback)
+{
+    static auto dbClient = DatabaseManager::get().getDbClient();
+    static auto& mapper = DatabaseManager::get().getMapper<models::Product>();
+
+    auto queryResult =
+        mapper
+            .orderBy("dateofcreation", orm::SortOrder::DESC)
+            .limit(10)
+            .findAll();
+
+    Json::Value json;
+    for(auto& i : queryResult)
+        json.append(i.toJson());
+
+    auto response = HttpResponse::newHttpJsonResponse(json);
+
+    callback(response);
+}

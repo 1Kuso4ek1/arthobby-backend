@@ -140,6 +140,23 @@
               }
           }
       },
+      "/getNewProducts": {
+          "get": {
+              "tags": ["Продукты"],
+              "summary": "Новые товары",
+              "description": "Возвращает 10 самых новых товаров",
+              "operationId": "getNewProducts",
+              "produces": ["application/json"],
+              "responses": {
+                  "200": {
+                      "description": "Успешный запрос",
+                      "schema": {
+                          "$ref": "#/definitions/ProductArray"
+                      }
+                  }
+              }
+          }
+      },
       "/getCart": {
           "get": {
               "tags": ["Корзина"],
