@@ -75,6 +75,8 @@ void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
 
 void LoginController::refresh(const HttpRequestPtr& req, Callback&& callback)
 {
+    static auto refreshSecret = drogon::app().getCustomConfig()["jwt"]["refresh_secret"].asString();
+
     auto refreshToken = req->getCookie("refreshToken");
 
     if(refreshToken.empty())
@@ -90,7 +92,7 @@ void LoginController::refresh(const HttpRequestPtr& req, Callback&& callback)
     {
         auto decoded = jwt::decode(refreshToken);
         auto verifier = jwt::verify()
-            .allow_algorithm(jwt::algorithm::hs256("refreshSecret"))
+            .allow_algorithm(jwt::algorithm::hs256(refreshSecret))
             .with_issuer("auth0");
 
         verifier.verify(decoded);
@@ -183,6 +185,8 @@ bool LoginController::validateUser(const std::shared_ptr<Json::Value>& json)
 
 std::string LoginController::makeAccessToken(int id, const std::string& username)
 {
+    static auto accessSecret = drogon::app().getCustomConfig()["jwt"]["access_secret"].asString();
+
     auto token = jwt::create()
         .set_issuer("auth0")
         .set_type("JWS")
@@ -195,13 +199,15 @@ std::string LoginController::makeAccessToken(int id, const std::string& username
             "username",
             jwt::claim(username)
         )
-        .sign(jwt::algorithm::hs256("secret")); // Change the secret to something *really* secret
+        .sign(jwt::algorithm::hs256(accessSecret)); // Change the secret to something *really* secret
 
     return token;
 }
 
 std::string LoginController::makeRefreshToken(int id, const std::string& username)
 {
+    static auto refreshSecret = drogon::app().getCustomConfig()["jwt"]["refresh_secret"].asString();
+
     auto token = jwt::create()
         .set_issuer("auth0")
         .set_type("JWS")
@@ -214,7 +220,7 @@ std::string LoginController::makeRefreshToken(int id, const std::string& usernam
             "username",
             jwt::claim(username)
         )
-        .sign(jwt::algorithm::hs256("refreshSecret"));
+        .sign(jwt::algorithm::hs256(refreshSecret));
 
     return token;
 }

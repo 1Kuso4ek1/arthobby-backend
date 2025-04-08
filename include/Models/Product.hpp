@@ -126,12 +126,11 @@ class Product
 
     /**  For column price  */
     ///Get the value of the column price, returns the default value if the column is null
-    const std::string &getValueOfPrice() const noexcept;
+    const int32_t &getValueOfPrice() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getPrice() const noexcept;
+    const std::shared_ptr<int32_t> &getPrice() const noexcept;
     ///Set the value of the column price
-    void setPrice(const std::string &pPrice) noexcept;
-    void setPrice(std::string &&pPrice) noexcept;
+    void setPrice(const int32_t &pPrice) noexcept;
     void setPriceToNull() noexcept;
 
     /**  For column filename  */
@@ -230,7 +229,7 @@ class Product
     void updateId(const uint64_t id);
     std::shared_ptr<int32_t> id_;
     std::shared_ptr<std::string> name_;
-    std::shared_ptr<std::string> price_;
+    std::shared_ptr<int32_t> price_;
     std::shared_ptr<std::string> filename_;
     std::shared_ptr<::trantor::Date> dateofcreation_;
     std::shared_ptr<std::string> type_;

@@ -3,3 +3,4 @@ build
 .vscode
 env
 src/Models/model.json
+config/config.json

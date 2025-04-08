@@ -8,7 +8,7 @@ This project is the backend for the [ArtHobby application](https://arthobby-fron
 - [Cloning the Repository](#cloning-the-repository)
 - [Building the Project](#building-the-project)
 - [Database Setup](#database-setup)
-- [Environment Configuration](#environment-configuration)
+- [Configuration](#configuration)
 - [Running the Application](#running-the-application)
 
 ## Prerequisites
@@ -84,27 +84,9 @@ Before you begin, ensure you have the following installed:
         ```
         - Replace `/path/to/this/project/sql/create_tables.sql` with the actual path to the file.
     
-## Environment Configuration
+## Configuration
 
-1.  **Create an `env` file:**
-    - In the root directory of the project, create a file named `env`.
-
-2.  **Add Database Credentials:**
-    - Open the `env` file and add the host, port, database name, username, and password, each on a new line:
-
-    ```
-    localhost
-    5432
-    arthobby
-    your_db_user
-    your_db_password
-    ```
-
-    - Replace `arthobby`, `your_db_user`, and `your_db_password` with your actual database name, username, and password.
-
-3. *(optional)* **Set ENV_PATH:**
-    - `ENV_PATH` is defined in `CMakeLists.txt` and points to `env` file.
-    - If your env file is not in the root directory, you need to change this variable.
+There's a `config/sample.json` file, which you should use as a template for your configuration. You can either make changes to this file directly, or copy/rename/move it. Either way, you need to fill in your database credentials, server port, and other settings.
 
 ## Running the Application
 
@@ -121,3 +103,9 @@ Before you begin, ensure you have the following installed:
     ```
 
     This will start the Drogon web server.
+
+3.  If you moved the default `config/sample.json` file, you can provide a path to your config file as an argument:
+
+    ```bash
+    ./ArtHobby /path/to/your/config.json
+    ```

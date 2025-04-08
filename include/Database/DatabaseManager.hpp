@@ -15,7 +15,7 @@ class DatabaseManager : public Singleton<DatabaseManager>
 public:
     orm::DbClientPtr getDbClient();
 
-    // Stores needed mappers in cache and checks their existence
+    // Stores needed mappers in cache and checks their existence (not really sure if it's useful)
     template<class T>
     orm::Mapper<T>& getMapper()
     {

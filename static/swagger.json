@@ -1,354 +1,298 @@
 {
-    "swagger": "2.0",
-    "info": {
-      "description": "AMOGUS",
+  "swagger": "2.0",
+  "info": {
+      "description": "API интернет-магазина ArtHobby",
       "version": "1.0.7",
-      "title": "ArtHobby store"
-    },
-    "host": "localhost:8080",
-    "basePath": "/",
-    "paths": {
+      "title": "ArtHobby Store"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [
+      {
+          "name": "Аутентификация",
+          "description": "Регистрация и авторизация пользователей"
+      },
+      {
+          "name": "Продукты",
+          "description": "Операции с товарами магазина"
+      },
+      {
+          "name": "Корзина",
+          "description": "Управление корзиной покупок (требуется авторизация)"
+      }
+  ],
+  "paths": {
       "/register": {
-        "post": {
-          "summary": "register user",
-          "description": "",
-          "operationId": "register",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "in": "body",
-              "name": "body",
-              "description": "User login object",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/UserLogin"
+          "post": {
+              "tags": ["Аутентификация"],
+              "summary": "Регистрация пользователя",
+              "description": "Создание нового аккаунта в системе",
+              "operationId": "register",
+              "produces": ["application/json"],
+              "parameters": [
+                  {
+                      "in": "body",
+                      "name": "body",
+                      "description": "Данные для регистрации",
+                      "required": true,
+                      "schema": {
+                          "$ref": "#/definitions/UserLogin"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Успешная регистрация"
+                  }
               }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation"
-            }
           }
-        }
       },
       "/login": {
-        "post": {
-          "summary": "login user",
-          "description": "",
-          "operationId": "login",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "in": "body",
-              "name": "body",
-              "description": "User object",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/UserLogin"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation",
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "token": {
-                    "type": "string"
+          "post": {
+              "tags": ["Аутентификация"],
+              "summary": "Авторизация пользователя",
+              "description": "Получение JWT-токена для доступа к API",
+              "operationId": "login",
+              "produces": ["application/json"],
+              "parameters": [
+                  {
+                      "in": "body",
+                      "name": "body",
+                      "description": "Учетные данные пользователя",
+                      "required": true,
+                      "schema": {
+                          "$ref": "#/definitions/UserLogin"
+                      }
                   }
-                }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Успешная авторизация",
+                      "schema": {
+                          "type": "object",
+                          "properties": {
+                              "token": {
+                                  "type": "string"
+                              }
+                          }
+                      }
+                  }
               }
-            }
           }
-        }
       },
       "/getProduct/{id}": {
-        "get": {
-          "summary": "returns product by id",
-          "description": "",
-          "operationId": "getProduct",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "ID of product to return",
-              "required": true,
-              "type": "integer"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation",
-              "schema": {
-                "$ref": "#/definitions/Product"
+          "get": {
+              "tags": ["Продукты"],
+              "summary": "Получить товар по ID",
+              "description": "Возвращает информацию о конкретном товаре",
+              "operationId": "getProduct",
+              "produces": ["application/json"],
+              "parameters": [
+                  {
+                      "name": "id",
+                      "in": "path",
+                      "description": "Идентификатор товара",
+                      "required": true,
+                      "type": "integer"
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Успешный запрос",
+                      "schema": {
+                          "$ref": "#/definitions/Product"
+                      }
+                  }
               }
-            }
           }
-        }
       },
       "/getAllProducts": {
-        "get": {
-          "summary": "returns all products",
-          "description": "",
-          "operationId": "getAllProducts",
-          "produces": [
-            "application/json"
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation",
-              "schema": {
-                "$ref": "#/definitions/ProductArray"
+          "get": {
+              "tags": ["Продукты"],
+              "summary": "Получить все товары",
+              "description": "Возвращает полный каталог товаров",
+              "operationId": "getAllProducts",
+              "produces": ["application/json"],
+              "responses": {
+                  "200": {
+                      "description": "Успешный запрос",
+                      "schema": {
+                          "$ref": "#/definitions/ProductArray"
+                      }
+                  }
               }
-            }
           }
-        }
       },
       "/getPopularProducts": {
-        "get": {
-          "summary": "returns 10 of the most popular products",
-          "description": "",
-          "operationId": "getPopularProducts",
-          "produces": [
-            "application/json"
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation",
-              "schema": {
-                "$ref": "#/definitions/ProductArray"
+          "get": {
+              "tags": ["Продукты"],
+              "summary": "Популярные товары",
+              "description": "Возвращает 10 самых популярных товаров",
+              "operationId": "getPopularProducts",
+              "produces": ["application/json"],
+              "responses": {
+                  "200": {
+                      "description": "Успешный запрос",
+                      "schema": {
+                          "$ref": "#/definitions/ProductArray"
+                      }
+                  }
               }
-            }
           }
-        }
       },
       "/getCart": {
-        "get": {
-          "summary": "returns user cart",
-          "description": "",
-          "operationId": "getCart",
-          "produces": [
-            "application/json"
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation",
-              "schema": {
-                "$ref": "#/definitions/Cart"
-              }
-            },
-            "401": {
-              "description": "Unauthorized"
-            }
-          },
-          "security": [
-            {
-              "api_key": []
-            }
-          ]
-        }
+          "get": {
+              "tags": ["Корзина"],
+              "summary": "Получить корзину",
+              "description": "Просмотр содержимого корзины пользователя",
+              "operationId": "getCart",
+              "produces": ["application/json"],
+              "responses": {
+                  "200": {
+                      "description": "Успешный запрос",
+                      "schema": {
+                          "$ref": "#/definitions/Cart"
+                      }
+                  },
+                  "401": {
+                      "description": "Требуется авторизация"
+                  }
+              },
+              "security": [{"api_key": []}]
+          }
       },
       "/addToCart": {
-        "post": {
-          "summary": "add product to cart",
-          "description": "",
-          "operationId": "addToCart",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "in": "body",
-              "name": "body",
-              "description": "Product id",
-              "required": true,
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "product_id": {
-                    "type": "integer"
+          "post": {
+              "tags": ["Корзина"],
+              "summary": "Добавить в корзину",
+              "description": "Добавление товара в корзину пользователя",
+              "operationId": "addToCart",
+              "produces": ["application/json"],
+              "parameters": [
+                  {
+                      "in": "body",
+                      "name": "body",
+                      "description": "Идентификатор товара",
+                      "required": true,
+                      "schema": {
+                          "type": "object",
+                          "properties": {
+                              "product_id": {
+                                  "type": "integer"
+                              }
+                          }
+                      }
                   }
-                }
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation"
-            },
-            "401": {
-              "description": "Unauthorized"
-            }
-          },
-          "security": [
-            {
-              "api_key": []
-            }
-          ]
-        }
+              ],
+              "responses": {
+                  "200": {"description": "Товар добавлен"},
+                  "401": {"description": "Требуется авторизация"}
+              },
+              "security": [{"api_key": []}]
+          }
       },
       "/removeFromCart": {
-        "post": {
-          "summary": "remove product from cart",
-          "description": "",
-          "operationId": "removeFromCart",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "in": "body",
-              "name": "body",
-              "description": "Product id",
-              "required": true,
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "product_id": {
-                    "type": "integer"
+          "post": {
+              "tags": ["Корзина"],
+              "summary": "Удалить из корзины",
+              "description": "Удаление товара из корзины пользователя",
+              "operationId": "removeFromCart",
+              "produces": ["application/json"],
+              "parameters": [
+                  {
+                      "in": "body",
+                      "name": "body",
+                      "description": "Идентификатор товара",
+                      "required": true,
+                      "schema": {
+                          "type": "object",
+                          "properties": {
+                              "product_id": {
+                                  "type": "integer"
+                              }
+                          }
+                      }
                   }
-                }
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation"
-            },
-            "401": {
-              "description": "Unauthorized"
-            }
-          },
-          "security": [
-            {
-              "api_key": []
-            }
-          ]
-        }
+              ],
+              "responses": {
+                  "200": {"description": "Товар удален"},
+                  "401": {"description": "Требуется авторизация"}
+              },
+              "security": [{"api_key": []}]
+          }
       },
       "/clearCart": {
-        "post": {
-          "summary": "clear user cart",
-          "description": "",
-          "operationId": "clearCart",
-          "produces": [
-            "application/json"
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation"
-            },
-            "401": {
-              "description": "Unauthorized"
-            }
-          },
-          "security": [
-            {
-              "api_key": []
-            }
-          ]
-        }
+          "post": {
+              "tags": ["Корзина"],
+              "summary": "Очистить корзину",
+              "description": "Полная очистка корзины пользователя",
+              "operationId": "clearCart",
+              "produces": ["application/json"],
+              "responses": {
+                  "200": {"description": "Корзина очищена"},
+                  "401": {"description": "Требуется авторизация"}
+              },
+              "security": [{"api_key": []}]
+          }
       }
-    },
-    "securityDefinitions": {
+  },
+  "securityDefinitions": {
       "api_key": {
-        "type": "apiKey",
-        "name": "Authorization",
-        "in": "header"
+          "type": "apiKey",
+          "name": "Authorization",
+          "in": "header",
+          "description": "JWT-токен в формате: Bearer {token}"
       }
-    },
-    "definitions": {
+  },
+  "definitions": {
       "ProductArray": {
-        "type": "array",
-        "items": {
-          "$ref": "#/definitions/Product"
-        }
+          "type": "array",
+          "items": {
+              "$ref": "#/definitions/Product"
+          }
       },
       "Product": {
-        "type": "object",
-        "properties": {
-          "id" : {
-            "type": "integer"
-          },
-          "name" : {
-            "type": "string"
-          },
-          "price" : {
-            "type": "number"
-          },
-          "filename" : {
-            "type": "string"
-          },
-          "dateOfCreation" : {
-            "type": "string"
-          },
-          "type" : {
-            "type": "string"          
-          },
-          "material" : {
-            "type": "string"
-          },
-          "size" : {
-            "type": "string"
-          },
-          "article" : {
-            "type": "string"
-          },
-          "popularity" : {
-            "type": "integer"
+          "type": "object",
+          "properties": {
+              "id": {"type": "integer"},
+              "name": {"type": "string"},
+              "price": {"type": "number"},
+              "filename": {"type": "string"},
+              "dateOfCreation": {"type": "string"},
+              "type": {"type": "string"},
+              "material": {"type": "string"},
+              "size": {"type": "string"},
+              "article": {"type": "string"},
+              "popularity": {"type": "integer"}
           }
-        }
       },
       "Cart": {
-        "type": "object",
-        "properties": {
-          "id" : {
-            "type": "integer"
-          },
-          "userId" : {
-            "type": "integer"
-          },
-          "products" : {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/Product"
-            }
+          "type": "object",
+          "properties": {
+              "id": {"type": "integer"},
+              "userId": {"type": "integer"},
+              "products": {
+                  "type": "array",
+                  "items": {
+                      "$ref": "#/definitions/Product"
+                  }
+              }
           }
-        }
       },
       "User": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "username": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
+          "type": "object",
+          "properties": {
+              "id": {"type": "integer"},
+              "username": {"type": "string"},
+              "password": {"type": "string"}
           }
-        }
       },
       "UserLogin": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
+          "type": "object",
+          "properties": {
+              "username": {"type": "string"},
+              "password": {"type": "string"}
           }
-        }
       }
-    }
+  }
 }

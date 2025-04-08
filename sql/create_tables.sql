@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS product(
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
-    price NUMERIC(12, 2),
+    price INTEGER,
     filename VARCHAR(255),
     dateOfCreation TIMESTAMP,
     type VARCHAR(255),

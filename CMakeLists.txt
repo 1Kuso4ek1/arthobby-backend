@@ -15,8 +15,6 @@ file(GLOB BACKEND_SOURCES "src/*.cpp" "src/*/*.cpp")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions("-DENV_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/env\"")
-
 add_executable(
     ArtHobby
 

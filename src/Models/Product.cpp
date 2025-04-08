@@ -31,7 +31,7 @@ const std::string Product::tableName = "\"product\"";
 const std::vector<typename Product::MetaData> Product::metaData_={
 {"id","int32_t","integer",4,1,1,1},
 {"name","std::string","character varying",255,0,0,0},
-{"price","std::string","numeric",0,0,0,0},
+{"price","int32_t","integer",4,0,0,0},
 {"filename","std::string","character varying",255,0,0,0},
 {"dateofcreation","::trantor::Date","timestamp without time zone",0,0,0,0},
 {"type","std::string","character varying",255,0,0,0},
@@ -59,7 +59,7 @@ Product::Product(const Row &r, const ssize_t indexOffset) noexcept
         }
         if(!r["price"].isNull())
         {
-            price_=std::make_shared<std::string>(r["price"].as<std::string>());
+            price_=std::make_shared<int32_t>(r["price"].as<int32_t>());
         }
         if(!r["filename"].isNull())
         {
@@ -130,7 +130,7 @@ Product::Product(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 2;
         if(!r[index].isNull())
         {
-            price_=std::make_shared<std::string>(r[index].as<std::string>());
+            price_=std::make_shared<int32_t>(r[index].as<int32_t>());
         }
         index = offset + 3;
         if(!r[index].isNull())
@@ -217,7 +217,7 @@ Product::Product(const Json::Value &pJson, const std::vector<std::string> &pMasq
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            price_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+            price_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[2]].asInt64());
         }
     }
     if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
@@ -319,7 +319,7 @@ Product::Product(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[2]=true;
         if(!pJson["price"].isNull())
         {
-            price_=std::make_shared<std::string>(pJson["price"].asString());
+            price_=std::make_shared<int32_t>((int32_t)pJson["price"].asInt64());
         }
     }
     if(pJson.isMember("filename"))
@@ -426,7 +426,7 @@ void Product::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[2] = true;
         if(!pJson[pMasqueradingVector[2]].isNull())
         {
-            price_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+            price_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[2]].asInt64());
         }
     }
     if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
@@ -527,7 +527,7 @@ void Product::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[2] = true;
         if(!pJson["price"].isNull())
         {
-            price_=std::make_shared<std::string>(pJson["price"].asString());
+            price_=std::make_shared<int32_t>((int32_t)pJson["price"].asInt64());
         }
     }
     if(pJson.isMember("filename"))
@@ -655,25 +655,20 @@ void Product::setNameToNull() noexcept
     dirtyFlag_[1] = true;
 }
 
-const std::string &Product::getValueOfPrice() const noexcept
+const int32_t &Product::getValueOfPrice() const noexcept
 {
-    static const std::string defaultValue = std::string();
+    static const int32_t defaultValue = int32_t();
     if(price_)
         return *price_;
     return defaultValue;
 }
-const std::shared_ptr<std::string> &Product::getPrice() const noexcept
+const std::shared_ptr<int32_t> &Product::getPrice() const noexcept
 {
     return price_;
 }
-void Product::setPrice(const std::string &pPrice) noexcept
+void Product::setPrice(const int32_t &pPrice) noexcept
 {
-    price_ = std::make_shared<std::string>(pPrice);
-    dirtyFlag_[2] = true;
-}
-void Product::setPrice(std::string &&pPrice) noexcept
-{
-    price_ = std::make_shared<std::string>(std::move(pPrice));
+    price_ = std::make_shared<int32_t>(pPrice);
     dirtyFlag_[2] = true;
 }
 void Product::setPriceToNull() noexcept
@@ -1749,7 +1744,7 @@ bool Product::validJsonOfField(size_t index,
             {
                 return true;
             }
-            if(!pJson.isString())
+            if(!pJson.isInt())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;

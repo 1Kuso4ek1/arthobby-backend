@@ -1,11 +1,15 @@
 #include <Filters/JwtFilter.hpp>
 
+#include <drogon/HttpAppFramework.h>
+
 void JwtFilter::doFilter(
     const HttpRequestPtr& req,
     FilterCallback&& fcb,
     FilterChainCallback&& fccb
 )
 {
+    static auto refreshSecret = drogon::app().getCustomConfig()["jwt"]["access_secret"].asString();
+    
     auto authHeader = req->getHeader("Authorization");
     
     if(authHeader.empty())
