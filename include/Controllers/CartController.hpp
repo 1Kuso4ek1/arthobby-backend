@@ -20,11 +20,11 @@ public:
 public:
     METHOD_LIST_BEGIN
 
-        ADD_METHOD_TO(getCart, "/getCart", Get, "JwtFilter");
+        ADD_METHOD_TO(getCart, "/getCart", Get, "Filters::JwtFilter");
 
-        ADD_METHOD_TO(addToCart, "/addToCart", Post, "JwtFilter");
-        ADD_METHOD_TO(removeFromCart, "/removeFromCart", Post, "JwtFilter");
-        ADD_METHOD_TO(clearCart, "/clearCart", Post, "JwtFilter");
+        ADD_METHOD_TO(addToCart, "/addToCart", Post, "Filters::JwtFilter");
+        ADD_METHOD_TO(removeFromCart, "/removeFromCart", Post, "Filters::JwtFilter");
+        ADD_METHOD_TO(clearCart, "/clearCart", Post, "Filters::JwtFilter");
 
     METHOD_LIST_END
 
