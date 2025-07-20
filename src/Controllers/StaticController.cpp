@@ -1,22 +1,21 @@
 #include <Controllers/StaticController.hpp>
 
+namespace Controllers
+{
+
 void StaticController::swaggerPage(const HttpRequestPtr& req, Callback&& callback)
 {
-    auto resp = HttpResponse::newRedirectionResponse("swagger/index.html");
-
-    callback(resp);
+    callback(HttpResponse::newRedirectionResponse("swagger/index.html"));
 }
 
 void StaticController::swaggerFile(const HttpRequestPtr& req, Callback&& callback)
 {
-    auto resp = HttpResponse::newFileResponse("../static/swagger.json");
-
-    callback(resp);
+    callback(HttpResponse::newFileResponse("../static/swagger.json"));
 }
 
 void StaticController::image(const HttpRequestPtr& req, Callback&& callback, const std::string& path)
 {
-    auto resp = HttpResponse::newFileResponse("../static/img/" + path);
+    callback(HttpResponse::newFileResponse(std::format("../static/img/{}", path)));
+}
 
-    callback(resp);
 }

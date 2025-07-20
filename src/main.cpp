@@ -5,7 +5,7 @@ using namespace trantor;
 
 using namespace std::chrono_literals;
 
-int main(int argc, char* argv[])
+int main(const int argc, char* argv[])
 {
     std::string configPath = "../config/sample.json";
 
@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     app()
         .loadConfigFile(configPath)
         .registerPostHandlingAdvice(
-            [](const drogon::HttpRequestPtr &req, const drogon::HttpResponsePtr &resp) {
+            [](const HttpRequestPtr& req, const HttpResponsePtr& resp) {
                 resp->addHeader("Access-Control-Allow-Origin", "*");
             }
         )

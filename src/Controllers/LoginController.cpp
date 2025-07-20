@@ -1,27 +1,30 @@
 #include <Controllers/LoginController.hpp>
-#include <Database/DatabaseManager.hpp>
+
 #include <Models/User.hpp>
 
 using namespace std::chrono_literals;
 
-namespace models = drogon_model::arthobby;
+namespace Models = drogon_model::arthobby;
+
+namespace Controllers
+{
 
 void LoginController::registerUser(const HttpRequestPtr& req, Callback&& callback)
 {
-    auto request = req->getJsonObject();
+    const auto request = req->getJsonObject();
 
     if(!request || !request->isMember("username") || !request->isMember("password"))
     {
-        auto response = HttpResponse::newHttpResponse();
+        const auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(k400BadRequest);
 
         callback(response);
         return;
     }
 
-    static auto& mapper = DatabaseManager::get().getMapper<models::User>();
+    static auto mapper = orm::Mapper<Models::User>(app().getDbClient());
 
-    models::User user;
+    Models::User user;
     user.setUsername((*request)["username"].asString());
     user.setPassword((*request)["password"].asString());
 
@@ -31,12 +34,13 @@ void LoginController::registerUser(const HttpRequestPtr& req, Callback&& callbac
     }
     catch(const std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        LOG_ERROR << e.what();
 
-        auto response = HttpResponse::newHttpResponse();
-        response->setStatusCode(drogon::k409Conflict);
+        const auto response = HttpResponse::newHttpResponse();
+        response->setStatusCode(k409Conflict);
 
         callback(response);
+
         return;
     }
 
@@ -45,20 +49,19 @@ void LoginController::registerUser(const HttpRequestPtr& req, Callback&& callbac
 
 void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
 {
-    auto request = req->getJsonObject();
-
-    if(validateUser(request))
+    if(const auto request = req->getJsonObject();
+        validateUser(request))
     {
-        auto userId = (*request)["user_id"].asInt();
-        auto username = (*request)["username"].asString();
+        const auto userId = (*request)["user_id"].asInt();
+        const auto username = (*request)["username"].asString();
         
-        auto accessToken = makeAccessToken(userId, username);
-        auto refreshToken = makeRefreshToken(userId, username);
+        const auto accessToken = makeAccessToken(userId, username);
+        const auto refreshToken = makeRefreshToken(userId, username);
 
         Json::Value json;
         json["token"] = accessToken;
 
-        auto response = HttpResponse::newHttpJsonResponse(json);
+        const auto response = HttpResponse::newHttpJsonResponse(json);
 
         saveRefreshToCookie(refreshToken, response);
 
@@ -66,7 +69,7 @@ void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
     }
     else
     {
-        auto response = HttpResponse::newHttpResponse();
+        const auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(k401Unauthorized);
 
         callback(response);
@@ -75,13 +78,13 @@ void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
 
 void LoginController::refresh(const HttpRequestPtr& req, Callback&& callback)
 {
-    static auto refreshSecret = drogon::app().getCustomConfig()["jwt"]["refresh_secret"].asString();
+    static auto refreshSecret = app().getCustomConfig()["jwt"]["refresh_secret"].asString();
 
-    auto refreshToken = req->getCookie("refreshToken");
+    const auto refreshToken = req->getCookie("refreshToken");
 
     if(refreshToken.empty())
     {
-        auto response = HttpResponse::newHttpResponse();
+        const auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(k401Unauthorized);
 
         callback(response);
@@ -90,14 +93,14 @@ void LoginController::refresh(const HttpRequestPtr& req, Callback&& callback)
 
     try
     {
-        auto decoded = jwt::decode(refreshToken);
-        auto verifier = jwt::verify()
+        const auto decoded = jwt::decode(refreshToken);
+        const auto verifier = jwt::verify()
             .allow_algorithm(jwt::algorithm::hs256(refreshSecret))
             .with_issuer("auth0");
 
         verifier.verify(decoded);
 
-        auto accessToken =
+        const auto accessToken =
             makeAccessToken(
                 decoded.get_payload_claim("user_id").as_integer(),
                 decoded.get_payload_claim("username").as_string()
@@ -106,13 +109,13 @@ void LoginController::refresh(const HttpRequestPtr& req, Callback&& callback)
         Json::Value json;
         json["token"] = accessToken;
 
-        auto response = HttpResponse::newHttpJsonResponse(json);
+        const auto response = HttpResponse::newHttpJsonResponse(json);
 
         callback(response);
     }
-    catch(const std::exception& e)
+    catch(...)
     {
-        auto response = HttpResponse::newHttpResponse();
+        const auto response = HttpResponse::newHttpResponse();
         response->setStatusCode(k401Unauthorized);
 
         callback(response);
@@ -121,7 +124,7 @@ void LoginController::refresh(const HttpRequestPtr& req, Callback&& callback)
 
 void LoginController::logout(const HttpRequestPtr& req, Callback&& callback)
 {
-    auto response = HttpResponse::newHttpResponse();
+    const auto response = HttpResponse::newHttpResponse();
 
     // Removing cookie
     saveRefreshToCookie("", response, 0);
@@ -129,19 +132,7 @@ void LoginController::logout(const HttpRequestPtr& req, Callback&& callback)
     callback(response);
 }
 
-void LoginController::saveAccessToCookie(const std::string& token, const HttpResponsePtr& resp, int maxAge)
-{
-    /* Cookie cookie("accessToken", token);
-    cookie.setHttpOnly(true);
-    cookie.setSecure(true);
-    cookie.setSameSite(Cookie::SameSite::kStrict);
-    cookie.setPath("/access");
-    cookie.setMaxAge(maxAge);
-
-    resp->addCookie(cookie); */
-}
-
-void LoginController::saveRefreshToCookie(const std::string& token, const HttpResponsePtr& resp, int maxAge)
+void LoginController::saveRefreshToCookie(const std::string& token, const HttpResponsePtr& resp, const int maxAge)
 {
     Cookie cookie("refreshToken", token);
     cookie.setHttpOnly(true);
@@ -155,25 +146,19 @@ void LoginController::saveRefreshToCookie(const std::string& token, const HttpRe
 
 bool LoginController::validateUser(const std::shared_ptr<Json::Value>& json)
 {
-    static auto& mapper = DatabaseManager::get().getMapper<drogon_model::arthobby::User>();
+    static auto mapper = orm::Mapper<Models::User>(app().getDbClient());
 
     if(!json || !json->isMember("username") || !json->isMember("password"))
         return false;
 
     try
     {
-        auto user = mapper.findOne(
-            orm::Criteria(
-                "username",
-                orm::CompareOperator::EQ,
-                (*json)["username"].asString()
-            )
-        );
+        const auto user = mapper.findOne({ "username", (*json)["username"].asString() });
 
         (*json)["user_id"] = *user.getId();
 
         if(user.getPassword())
-            return *user.getPassword().get() == (*json)["password"].asString();
+            return *user.getPassword() == (*json)["password"].asString();
     }
     catch(...)
     {
@@ -183,9 +168,9 @@ bool LoginController::validateUser(const std::shared_ptr<Json::Value>& json)
     return false;
 }
 
-std::string LoginController::makeAccessToken(int id, const std::string& username)
+std::string LoginController::makeAccessToken(const int id, const std::string& username)
 {
-    static auto accessSecret = drogon::app().getCustomConfig()["jwt"]["access_secret"].asString();
+    static auto accessSecret = app().getCustomConfig()["jwt"]["access_secret"].asString();
 
     auto token = jwt::create()
         .set_issuer("auth0")
@@ -204,7 +189,7 @@ std::string LoginController::makeAccessToken(int id, const std::string& username
     return token;
 }
 
-std::string LoginController::makeRefreshToken(int id, const std::string& username)
+std::string LoginController::makeRefreshToken(const int id, const std::string& username)
 {
     static auto refreshSecret = drogon::app().getCustomConfig()["jwt"]["refresh_secret"].asString();
 
@@ -223,4 +208,6 @@ std::string LoginController::makeRefreshToken(int id, const std::string& usernam
         .sign(jwt::algorithm::hs256(refreshSecret));
 
     return token;
+}
+
 }

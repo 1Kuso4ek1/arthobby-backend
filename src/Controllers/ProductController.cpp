@@ -1,26 +1,28 @@
 #include <Controllers/ProductController.hpp>
-#include <Database/DatabaseManager.hpp>
 #include <Models/Product.hpp>
 
-namespace models = drogon_model::arthobby;
+namespace Models = drogon_model::arthobby;
+
+namespace Controllers
+{
 
 void ProductController::getProduct(const HttpRequestPtr& req, Callback&& callback, int id)
 {
-    static auto dbClient = DatabaseManager::get().getDbClient();
-    static auto& mapper = DatabaseManager::get().getMapper<models::Product>();
+    static auto dbClient = app().getDbClient();
+    static auto mapper = orm::Mapper<Models::Product>(dbClient);
 
     try
     {
-        auto queryResult = mapper.findByPrimaryKey(id);
+        const auto queryResult = mapper.findByPrimaryKey(id);
 
-        auto response = HttpResponse::newHttpJsonResponse(queryResult.toJson());
+        const auto response = HttpResponse::newHttpJsonResponse(queryResult.toJson());
 
         callback(response);
     }
     catch(...) // mapper.findByPrimaryKey throws an exception when nothing was found
     {
         // An empty json
-        auto response = HttpResponse::newHttpJsonResponse({});
+        const auto response = HttpResponse::newHttpJsonResponse({});
 
         callback(response);
     }
@@ -28,26 +30,26 @@ void ProductController::getProduct(const HttpRequestPtr& req, Callback&& callbac
 
 void ProductController::getAllProducts(const HttpRequestPtr& req, Callback&& callback)
 {
-    static auto dbClient = DatabaseManager::get().getDbClient();
-    static auto& mapper = DatabaseManager::get().getMapper<models::Product>();
+    static auto dbClient = app().getDbClient();
+    static auto mapper = orm::Mapper<Models::Product>(dbClient);
 
-    auto queryResult = mapper.findAll();
+    const auto queryResult = mapper.findAll();
 
     Json::Value json;
     for(auto& i : queryResult)
         json.append(i.toJson());
 
-    auto response = HttpResponse::newHttpJsonResponse(json);
+    const auto response = HttpResponse::newHttpJsonResponse(json);
 
     callback(response);
 }
 
 void ProductController::getPopularProducts(const HttpRequestPtr& req, Callback&& callback)
 {
-    static auto dbClient = DatabaseManager::get().getDbClient();
-    static auto& mapper = DatabaseManager::get().getMapper<models::Product>();
+    static auto dbClient = app().getDbClient();
+    static auto mapper = orm::Mapper<Models::Product>(dbClient);
 
-    auto queryResult =
+    const auto queryResult =
         mapper
             .orderBy("popularity", orm::SortOrder::DESC)
             .limit(10)
@@ -57,17 +59,17 @@ void ProductController::getPopularProducts(const HttpRequestPtr& req, Callback&&
     for(auto& i : queryResult)
         json.append(i.toJson());
 
-    auto response = HttpResponse::newHttpJsonResponse(json);
+    const auto response = HttpResponse::newHttpJsonResponse(json);
 
     callback(response);
 }
 
 void ProductController::getNewProducts(const HttpRequestPtr& req, Callback&& callback)
 {
-    static auto dbClient = DatabaseManager::get().getDbClient();
-    static auto& mapper = DatabaseManager::get().getMapper<models::Product>();
+    static auto dbClient = app().getDbClient();
+    static auto mapper = orm::Mapper<Models::Product>(dbClient);
 
-    auto queryResult =
+    const auto queryResult =
         mapper
             .orderBy("dateofcreation", orm::SortOrder::DESC)
             .limit(10)
@@ -77,7 +79,9 @@ void ProductController::getNewProducts(const HttpRequestPtr& req, Callback&& cal
     for(auto& i : queryResult)
         json.append(i.toJson());
 
-    auto response = HttpResponse::newHttpJsonResponse(json);
+    const auto response = HttpResponse::newHttpJsonResponse(json);
 
     callback(response);
+}
+
 }
